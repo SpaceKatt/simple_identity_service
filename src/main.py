@@ -3,21 +3,12 @@ Runs the webserver.
 '''
 
 # External dependencies
-# import aiofiles
 import asyncio
-# import json
+import json
 
 from aiohttp import web
 
 import db as pg_cli
-
-# built-in dependencies
-# import traceback
-# import io
-
-# from gzip import GzipFile
-# from urllib.parse import urlparse
-# from os import path
 
 
 ROUTES = web.RouteTableDef()
@@ -36,13 +27,16 @@ async def register(req):
     '''
     Registers a new user
     '''
-    data = await req.json()
+    try:
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
     try:
         username = data['username']
         passhash = data['passhash']
     except KeyError:
-        return web.Response(400)
+        return web.Response(status=400)
 
     if username is False or passhash is False:
         return web.Response(status=400)
@@ -60,7 +54,10 @@ async def authenticate(req):
     '''
     Registers a new user
     '''
-    data = await req.json()
+    try:
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
     try:
         username = data['username']

@@ -14,7 +14,7 @@
         "instance_type": "t2.micro",
         "ami_name": "simple-identity-service-{{timestamp}}",
         "ssh_username": "{{ user `ssh_name` }}",
-        "ssh_private_key_file": "{{ user `ssh_key_path` }}"
+        "ssh_private_key_file": ""
     }],
     "provisioners": [{
         "type": "shell",
@@ -33,6 +33,10 @@
         "destination": "/home/ubuntu/log"
     },{
         "type": "file",
+        "source": "../../.env",
+        "destination": "/home/ubuntu/.env"
+    },{
+        "type": "file",
         "source": "../../private/credentials",
         "destination": "/home/ubuntu/.aws/credentials"
     },{
@@ -42,6 +46,7 @@
     },{
         "type": "shell",
         "inline": [
+            "sed 's/export\\s//g' .env > .envy && cp .envy .env",
             "rm /etc/nginx/sites-enabled/default",
 
             "sudo systemctl enable gunicorn.socket",

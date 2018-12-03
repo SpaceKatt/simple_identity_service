@@ -44,15 +44,15 @@ resource "aws_security_group" "simple-identity-sg" {
 
   ingress {
     protocol    = "tcp"
-    from_port   = 5347
-    to_port     = 5347
+    from_port   = 5432
+    to_port     = 5432
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     protocol    = "tcp"
-    from_port   = 5347
-    to_port     = 5347
+    from_port   = 5432
+    to_port     = 5432
     cidr_blocks = ["0.0.0.0/0"]
   }
 
