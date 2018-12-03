@@ -1,17 +1,18 @@
 #/usr/bin/env bash
 
 sudo apt-get update
-sudo apt-get install -y build-essential \
+sudo apt-get install -y \
                         nginx \
                         python3 \
-                        python3-pip
+                        python3-pip \
+                        postgresql \
+                        postgresql-contrib
 #yes 1 | sudo apt-get upgrade -y
 
 mkdir /etc/tmpfiles.d
 mkdir /etc/systemd/system
 mkdir /home/ubuntu/.aws
 
-sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.env
 sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.bashrc
 
 sudo python3 -m pip install gunicorn

@@ -42,6 +42,20 @@ resource "aws_security_group" "simple-identity-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    protocol    = "tcp"
+    from_port   = 5347
+    to_port     = 5347
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = "tcp"
+    from_port   = 5347
+    to_port     = 5347
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     protocol    = "tcp"
     from_port   = 443
@@ -62,6 +76,27 @@ resource "aws_instance" "simple-identity" {
   instance_type               = "t2.micro"
   security_groups             = ["${aws_security_group.simple-identity-sg.name}"]
   associate_public_ip_address = true
+  key_name = "${aws_key_pair.terraform-packer-auto.key_name}"
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("../../private/terraform-packer-example.pem")}"
+  }
+
+  provisioner "file" {
+    source = "../../private/credentials"
+    destination = "/home/ubuntu/.aws/credentials"
+  }
+
+  provisioner "file" {
+    source = "../../private/config"
+    destination = "/home/ubuntu/.aws/config"
+  }
+
+  provisioner "file" {
+    source = "../../.env"
+    destination = "/home/ubuntu/.env"
+  }
 }
 
 output "instance_ips" {
