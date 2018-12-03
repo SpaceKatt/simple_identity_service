@@ -73,7 +73,8 @@ async def authenticate(req):
     success = await pg_cli.authenticate_user(req, username, passhash)
 
     if success:
-        return web.Response(status=200)
+        resp_data = {'uid': success}
+        return web.json_response(resp_data)
     else:
         return web.Response(status=401)
 

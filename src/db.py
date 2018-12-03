@@ -59,7 +59,7 @@ async def authenticate_user(req, name, passhash):
     async with pool.acquire() as connection:
         async with connection.transaction():
             stmt = await connection.fetchrow('''
-                                        SELECT passhash FROM poster
+                                        SELECT passhash, id FROM poster
                                         WHERE $1 = username
                                           ''', name)
             if stmt is None:
@@ -67,6 +67,6 @@ async def authenticate_user(req, name, passhash):
             else:
                 upstream_hash = str(stmt['passhash'])
                 if upstream_hash == passhash:
-                    return True
+                    return stmt['id']
                 else:
                     return False
