@@ -12,7 +12,7 @@ async def init_db():
     user = os.environ['DB_USERNAME']
     host = os.environ['DB_HOST']
     port = os.environ['DB_PORT']
-    database = os.environ['DB_DB']
+    database = os.environ['DB_NAME']
     password = os.environ['DB_PASSWORD']
 
     return await pg.create_pool(
@@ -31,7 +31,7 @@ def get_pool(req):
     return req.app['pool']
 
 
-async def insert_name_statement(req, name, password):
+async def insert_new_user(req, name, passhash):
     '''
     Associate a statement with a fictional character
     '''
@@ -41,12 +41,32 @@ async def insert_name_statement(req, name, password):
         async with connection.transaction():
             try:
                 await connection.execute('''
-                                     INSERT INTO user (username, passhash)
+                                     INSERT INTO poster (username, passhash)
                                      VALUES ($1, $2)
-                                     RETURNING name_id
-                                         ''', name, password)
+                                     RETURNING id
+                                         ''', name, passhash)
                 return True
             except pg.exceptions.UniqueViolationError:
                 return False
 
 
+async def authenticate_user(req, name, passhash):
+    '''
+    Retrieves a statement from a fictional character
+    '''
+    pool = get_pool(req)
+
+    async with pool.acquire() as connection:
+        async with connection.transaction():
+            stmt = await connection.fetchrow('''
+                                        SELECT passhash FROM poster
+                                        WHERE $1 = username
+                                          ''', name)
+            if stmt is None:
+                return False
+            else:
+                upstream_hash = str(stmt['passhash'])
+                if upstream_hash == passhash:
+                    return True
+                else:
+                    return False

@@ -9,7 +9,7 @@ import asyncio
 
 from aiohttp import web
 
-from .db import pg_cli
+import db as pg_cli
 
 # built-in dependencies
 # import traceback
@@ -29,6 +29,54 @@ async def root_handle(req):
     Tells the malcontent to go root themselves off our lawn.
     '''
     return web.Response(status=200, body='Stuff goes here')
+
+
+@ROUTES.post('/register')
+async def register(req):
+    '''
+    Registers a new user
+    '''
+    data = await req.json()
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    success = await pg_cli.insert_new_user(req, username, passhash)
+
+    if success:
+        return web.Response(status=201)
+    else:
+        return web.Response(status=409, body="Username already taken")
+
+
+@ROUTES.post('/authenticate')
+async def authenticate(req):
+    '''
+    Registers a new user
+    '''
+    data = await req.json()
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    success = await pg_cli.authenticate_user(req, username, passhash)
+
+    if success:
+        return web.Response(status=200)
+    else:
+        return web.Response(status=401)
 
 
 async def init_app():
