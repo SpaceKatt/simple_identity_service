@@ -9,6 +9,8 @@ import asyncio
 
 from aiohttp import web
 
+from .db import pg_cli
+
 # built-in dependencies
 # import traceback
 # import io
@@ -34,6 +36,8 @@ async def init_app():
     Initialize the database, then application server
     '''
     app = web.Application()
+
+    app['pool'] = await pg_cli.init_db()
 
     app.add_routes(ROUTES)
 
