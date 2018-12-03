@@ -5,6 +5,7 @@ Runs the webserver.
 # External dependencies
 import asyncio
 import json
+import os
 
 from aiohttp import web
 
@@ -12,6 +13,7 @@ import db as pg_cli
 
 
 ROUTES = web.RouteTableDef()
+AUTH_CODE = os.environ['AUTH_SIMPLE_IDENT']
 
 
 @ROUTES.get('/')
@@ -76,11 +78,30 @@ async def authenticate(req):
         return web.Response(status=401)
 
 
+@web.middleware
+async def auth_middleware(req, handler):
+    try:
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
+
+    try:
+        auth_token = data['auth_code']
+    except KeyError:
+        return web.Response(status=400)
+
+    if auth_token != AUTH_CODE:
+        return web.Response(status=401, body='Wrong auth token!')
+
+    response = await handler(req)
+    return response
+
+
 async def init_app():
     '''
     Initialize the database, then application server
     '''
-    app = web.Application()
+    app = web.Application(middlewares=[auth_middleware])
 
     app['pool'] = await pg_cli.init_db()
 
