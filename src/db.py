@@ -41,7 +41,7 @@ async def insert_new_user(req, name, passhash):
         async with connection.transaction():
             try:
                 await connection.execute('''
-                                     INSERT INTO poster (username, passhash)
+                                     INSERT INTO indiv (username, passhash)
                                      VALUES ($1, $2)
                                      RETURNING id
                                          ''', name, passhash)
@@ -59,7 +59,7 @@ async def authenticate_user(req, name, passhash):
     async with pool.acquire() as connection:
         async with connection.transaction():
             stmt = await connection.fetchrow('''
-                                        SELECT passhash, id FROM poster
+                                        SELECT passhash, id FROM indiv
                                         WHERE $1 = username
                                           ''', name)
             if stmt is None:
