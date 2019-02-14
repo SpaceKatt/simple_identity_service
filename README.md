@@ -1,7 +1,7 @@
 # Simple Identity Service (w/Terraform&Packer)
 
 A simple identity microservice. NGINX/gunicorn/aiohttp is the server stack.
-Packer and Terraform are used to deploy this microservice to the cloud.
+Packer and Terraform are used to deploy this microservice to the AWS cloud.
 
 ## Setup
 
@@ -38,6 +38,15 @@ sudo apt-get install -y \
 ```
 python3 -m pip install -r requirements.txt
 ```
+
+### Download AWS EC2 Key Pair
+
+We will need a EC2 Key Pair to authenticate with EC2 instances over SSH.
+Terraform and Packer use the `*.pem` keyfile to provision and configure images.
+After deployment, a developer may use this key pair to verify the
+deployment by connecting to an instance over SSH.
+
+[The AWS Docs have instructions on how to create and download a key pair.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
 
 #### Setting up environment variables
 ```
