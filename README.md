@@ -1,4 +1,45 @@
-### Setting up environment variables
+# Simple Identity Service (w/Terraform&Packer)
+
+A simple identity microservice. NGINX/gunicorn/aiohttp is the server stack.
+Packer and Terraform are used to deploy this microservice to the cloud.
+
+## Setup
+
+### Environment Prerequisites
+
+```
+1. Python      (>= 3.5.2)
+2. PostgreSQL  (>= 9.5.13)
+3. NGINX       (>= 1.10.3)
+4. Packer      (>= 1.3.2)
+5. Terraform   (>= 0.11.10)
+```
+
+Install instructions (tested on Ubuntu 16.04; gcc5.4.0)
+
+0. [Install Terraform (Link)](https://learn.hashicorp.com/terraform/getting-started/install.html)
+1. [Install Packer (Link)](https://www.packer.io/intro/getting-started/install.html)
+2. Install various other packages
+
+```
+sudo apt-get update
+sudo apt-get install -y \
+                        nginx \
+                        python3 \
+                        python3-pip \
+                        postgresql \
+                        postgresql-contrib
+
+```
+
+
+### Install Dependencies
+
+```
+python3 -m pip install -r requirements.txt
+```
+
+#### Setting up environment variables
 ```
 export AWS_PROFILE="default"
 export SSH_KEY_PATH="/<PATH_TO_AWS_PEM>/<AWS_PEM_FILE>.pem"
