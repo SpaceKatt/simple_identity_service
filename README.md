@@ -5,7 +5,7 @@ Packer and Terraform are used to deploy this microservice to the AWS cloud.
 
 ## Setup
 
-### Environment Prerequisites
+### Prerequisites
 
 ```
 1. Python      (>= 3.5.2)
@@ -33,7 +33,7 @@ sudo apt-get install -y \
 ```
 
 
-### Install Dependencies
+### Install Python Dependencies
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -46,16 +46,18 @@ Terraform and Packer use the `*.pem` keyfile to provision and configure images.
 After deployment, a developer may use this key pair to verify the
 deployment by connecting to an instance over SSH.
 
-[The AWS Docs have instructions on how to create and download a key pair.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
+[The AWS Docs have instructions on how to create and download a key pair.](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) You will likely have to use `chmod 400 <PATH_TO_KEY>/<KEY_NAME>.pem`
+to set the correct file permisions.
 
 ### Setup PostgreSQL
 
 We may either target a local or AWS RDS PostgreSQL database. The chosen option
 will dictate the values of environment variables, when we set them up later.
 
-#### Local PostgreSQL Setup
 
 0. Create database and database user
+
+#### Local PostgreSQL Setup
 
 ```bash
 $ sudo su - postgres
@@ -63,26 +65,38 @@ $ psql
 psql (10.6 (Ubuntu 10.6-0ubuntu0.18.04.1))
 Type "help" for help.
 
-postgres=# CREATE DATABASE identity;
+postgres=# CREATE DATABASE identitydb;
 CREATE DATABASE
 postgres=# CREATE USER identity_db_user PASSWORD 'YYYYYYYYYY';
 CREATE ROLE
 postgres=# \q
 ```
 
-1. Login as new user, to validate role creation
-
-```bash
-$ psql identity_db_user -h 127.0.0.1 -d identity
-```
-
-2. Import DB Schema
-
-```bash
-$ psql identity_db_user -h 127.0.0.1 -d identity < db_schema.psql
-```
-
 #### AWS RDS PostgreSQL Setup
+
+[Follow instructions to create a PostgreSQL database in AWS RDS.](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html)
+
+  - `NOTE` Be sure to make note of your database username, database password,
+    and public DNS endpoint of created database.
+
+1. Setup environment variables with the information entered into AWS.
+
+  - We only need to set the `DB_NAME`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`,
+    and `DB_HOST` variables. The other env vars may be ignored -- for now.
+  - If using AWS, `DB_HOST` is the public DNS endpoint of the created database.
+  - If using localhost, `DB_HOST` is `127.0.0.1`.
+
+2. Login as new user, to validate role creation
+
+```bash
+$ psql -h $DB_HOST -U $DB_USERNAME --password -p $DB_PORT -d $DB_NAME
+```
+
+3. Import DB Schema
+
+```bash
+$ psql -h $DB_HOST -U $DB_USERNAME --password -p $DB_PORT -d $DB_NAME < db_schema.psql
+```
 
 ### Setting up environment variables
 
@@ -94,13 +108,18 @@ $ psql identity_db_user -h 127.0.0.1 -d identity < db_schema.psql
 export AWS_PROFILE="default"
 export SSH_KEY_PATH="/<PATH_TO_AWS_PEM>/<AWS_PEM_FILE>.pem"
 export SIMPLE_IDENTITY_PROJECT="/<PATH_TO_PROJECT>/simple_identity_service"
-export DB_NAME="identitytable"
+export DB_NAME="identitydb"
 export DB_PORT=5432
 export DB_USERNAME="identity_db_user"
 export DB_PASSWORD="YYYYYYYYYY"
 export DB_HOST="XXXXXXXXXXXXXXXXXXXXXXX"
 export AUTH_SIMPLE_IDENT="XXXXXXXXXXXXXXXX"
 ```
+
+Variable notes
+
+  - `DB_HOST` is either `127.0.0.1` or the IP of your AWS RDS PostgreSQL instance.
+  - `AUTH_SIMPLE_IDENT` is a secret that every client must include with every API request.
 
 2. Load the environment variables into the environment
 
