@@ -43,7 +43,7 @@ async def insert_new_user(req, name, passhash):
                 await connection.execute('''
                                      INSERT INTO indiv (username, passhash)
                                      VALUES ($1, $2)
-                                     RETURNING id
+                                     RETURNING i_id
                                          ''', name, passhash)
                 return True
             except pg.exceptions.UniqueViolationError:
@@ -59,7 +59,7 @@ async def authenticate_user(req, name, passhash):
     async with pool.acquire() as connection:
         async with connection.transaction():
             stmt = await connection.fetchrow('''
-                                        SELECT passhash, id FROM indiv
+                                        SELECT passhash, i_id FROM indiv
                                         WHERE $1 = username
                                           ''', name)
             if stmt is None:
