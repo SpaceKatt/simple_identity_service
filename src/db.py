@@ -67,6 +67,6 @@ async def authenticate_user(req, name, passhash):
             else:
                 upstream_hash = str(stmt['passhash'])
                 if upstream_hash == passhash:
-                    return stmt['id']
+                    return stmt['i_id']
                 else:
                     return False
