@@ -55,7 +55,9 @@ We may either target a local or AWS RDS PostgreSQL database. The chosen option
 will dictate the values of environment variables, when we set them up later.
 
 
-0. Create database and database user
+0. Create database and database user, either locally on on AWS.
+
+  ---------------------------------------------------------------------------
 
 #### Local PostgreSQL Setup
 
@@ -79,6 +81,8 @@ postgres=# \q
   - `NOTE` Be sure to make note of your database username, database password,
     and public DNS endpoint of created database.
 
+  ---------------------------------------------------------------------------
+
 1. Setup environment variables with the information entered into AWS.
 
   - We only need to set the `DB_NAME`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`,
@@ -98,7 +102,15 @@ $ psql -h $DB_HOST -U $DB_USERNAME --password -p $DB_PORT -d $DB_NAME
 $ psql -h $DB_HOST -U $DB_USERNAME --password -p $DB_PORT -d $DB_NAME < db_schema.psql
 ```
 
-### Setting up environment variables
+### Setup AWS credentials
+
+Terraform and Packer need access to your AWS credentials, in order to provision
+resources on your behalf.
+
+[The easiest way to do this is to setup your credentials for the AWS CLI.](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+If the AWS CLI works, then your credentials should be properly configured!
+
+### Setup up environment variables
 
 0. Create a `.env` file
 
@@ -129,6 +141,3 @@ Variable notes
 ```bash
 source ./env
 ```
-
-### Connecting to Database Instance
-- `psql -h $DB_HOST -U $DB_USERNAME --password -p $DB_PORT -d $DB_NAME`
